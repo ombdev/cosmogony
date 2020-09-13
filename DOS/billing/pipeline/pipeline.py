@@ -1,4 +1,3 @@
-from misc.factory import Factory
 from abc import ABCMeta, abstractmethod
 
 class BuilderGen(metaclass=ABCMeta):
