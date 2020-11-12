@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"cosmogony.com/sales/internal/models"
@@ -12,20 +11,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CreateCotizacion(w http.ResponseWriter, r *http.Request) {
+func CreateSalesDocument(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
-	cotizacion := &models.Cotizacion{}
+	salesDoc := &models.SalesDocument{}
 
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(cotizacion); err != nil {
+	if err := decoder.Decode(salesDoc); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
 		return
 	}
 
 	// Guardar en persistent storage
-	result, err := dal.CreateCotizacion(cotizacion)
+	result, err := dal.CreateSalesDocument(salesDoc)
 	if err != nil {
 		// w.WriteHeader(http.StatusInternalServerError)
 		w.WriteHeader(http.StatusBadRequest)
@@ -38,20 +37,20 @@ func CreateCotizacion(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"message": "` + result + `"}`))
 }
 
-func ReadCotizacion(w http.ResponseWriter, r *http.Request) {
+func ReadSalesDocument(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"message": "Not an integer"}`))
-		return
-	}
+	// id, err := strconv.Atoi(vars["id"])
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte(`{"message": "Not an integer"}`))
+	// 	return
+	// }
 
 	// Guardar en persistent storage
-	cotizacion, err := dal.ReadCotizacion(id)
+	salesDoc, err := dal.ReadSalesDocument(vars["object_id"])
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
@@ -62,7 +61,7 @@ func ReadCotizacion(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(v)
 
 	encoder := json.NewEncoder(w)
-	if err = encoder.Encode(*cotizacion); err != nil {
+	if err = encoder.Encode(*salesDoc); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"message": "` + err.Error() + `"}`))
 		return

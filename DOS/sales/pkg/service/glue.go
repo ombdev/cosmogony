@@ -10,7 +10,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	"github.com/sirupsen/logrus"
 
-	co "cosmogony.com/sales/internal/controllers"
+	con "cosmogony.com/sales/internal/controllers"
 	"cosmogony.com/sales/internal/rsapi"
 	dal "cosmogony.com/sales/internal/storage"
 	ton "cosmogony.com/sales/internal/token"
@@ -112,15 +112,15 @@ func Engage(logger *logrus.Logger) (merr error) {
 
 			mgmt := sales.PathPrefix("/v1").Subrouter()
 
-			mgmt.HandleFunc("/cotizaciones", co.CreateCotizacion).Methods("POST")
-			mgmt.HandleFunc("/cotizaciones/{id:[0-9]+}", co.ReadCotizacion).Methods("GET")
+			mgmt.HandleFunc("/sales_documents", con.CreateSalesDocument).Methods("POST")
+			mgmt.HandleFunc("/sales_documents/{object_id:[0-9a-fA-F]+}", con.ReadSalesDocument).Methods("GET")
 
 			mgmt.Handle("/logout", negroni.New(
 				negroni.HandlerFunc(requireTokenAut),
 				negroni.HandlerFunc(
 					func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
-						co.SignOff(clerk.CeaseToken)(w, r)
+						con.SignOff(clerk.CeaseToken)(w, r)
 					},
 				),
 			)).Methods("GET")
@@ -133,7 +133,7 @@ func Engage(logger *logrus.Logger) (merr error) {
 					negroni.HandlerFunc(
 						func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 
-							co.Revive(clerk.RefreshToken)(w, r)
+							con.Revive(clerk.RefreshToken)(w, r)
 						},
 					),
 				)).Methods("POST")
